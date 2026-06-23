@@ -120,23 +120,25 @@ Implemented via a custom `@Roles()` decorator + `RolesGuard`. Store-scoped resou
 
 ### Authentication & Onboarding
 
-- [ ] Email/password signup and login (bcrypt password hashing)
-- [ ] JWT access token (15 min) + refresh token (7 days, httpOnly cookie)
-- [ ] Google OAuth login (Passport Google strategy)
-- [ ] Role selection during signup (buyer vs seller)
-- [ ] Seller onboarding: store name, description, logo upload, Stripe Connect account setup
-- [ ] Email verification on signup (token emailed via MailModule)
-- [ ] Forgot password / reset password flow
-- [ ] Refresh token rotation endpoint
+- [x] Email/password signup and login (bcrypt password hashing)
+- [x] JWT access token (15 min) + refresh token (7 days, httpOnly cookie)
+- [x] Google OAuth login (Passport Google strategy) <!-- backend implemented; requires GOOGLE_* env to activate -->
+- [x] Role selection during signup (buyer vs seller)
+- [x] Seller onboarding: store name, description, logo upload, Stripe Connect account setup <!-- API: POST /stores creates Connect Express account; POST /stores/mine/onboarding-link -->
+- [x] Email verification on signup (token emailed via MailModule)
+- [x] Forgot password / reset password flow
+- [x] Refresh token rotation endpoint
 
 ### Seller Dashboard
 
-- [ ] Store profile management (name, logo, banner, bio)
-- [ ] Product CRUD: title, description, price, stock quantity, category, images (up to 5)
-- [ ] Product status toggle (active / draft / out of stock)
-- [ ] Order management: view incoming orders, update status (processing → shipped → delivered)
-- [ ] Sales analytics: revenue chart (7d / 30d / 90d), top products, total orders
-- [ ] Payout history from Stripe Connect
+- [x] Store profile management (name, logo, banner, bio) <!-- API: POST/PATCH /stores, /stores/mine -->
+- [x] Product CRUD: title, description, price, stock quantity, category, images (up to 5) <!-- API: /products + /products/:id/images -->
+- [x] Product status toggle (active / draft / out of stock) <!-- via create/update status field -->
+- [x] Order management: view incoming orders, update status (processing → shipped → delivered) <!-- API: /seller/orders, PATCH /seller/orders/:id/status -->
+- [x] Sales analytics: revenue chart (7d / 30d / 90d), top products, total orders <!-- API: /seller/dashboard -->
+- [x] Payout history from Stripe Connect <!-- API: /stores/mine/payouts -->
+
+> Seller Dashboard items above are **backend/API complete & tested**; their Next.js UI is built in Phase 4.
 
 ### Product Catalog (Buyer-facing)
 
@@ -150,21 +152,25 @@ Implemented via a custom `@Roles()` decorator + `RolesGuard`. Store-scoped resou
 
 ### Shopping Cart & Checkout
 
-- [ ] Add to cart (localStorage for guests, DB for logged-in users)
-- [ ] Cart drawer/sidebar with item count badge
-- [ ] Quantity adjustment and item removal
-- [ ] Stripe Checkout Session (hosted checkout page)
-- [ ] Order summary before payment
-- [ ] Multiple sellers in one cart (Stripe Connect handles split payouts)
-- [ ] Post-checkout confirmation page with order number
+- [x] Add to cart (localStorage for guests, DB for logged-in users) <!-- DB cart API done (/cart); guest localStorage merge is Phase 4 frontend -->
+- [ ] Cart drawer/sidebar with item count badge <!-- Phase 4 UI (itemCount returned by /cart) -->
+- [x] Quantity adjustment and item removal <!-- API: PATCH/DELETE /cart/:itemId with stock validation -->
+- [x] Stripe Checkout Session (hosted checkout page) <!-- API: POST /checkout/session; verified live (cs_test_...) -->
+- [ ] Order summary before payment <!-- Phase 4 UI -->
+- [x] Multiple sellers in one cart (Stripe Connect handles split payouts) <!-- separate charges & transfers per seller, minus commission -->
+- [ ] Post-checkout confirmation page with order number <!-- Phase 4 UI (/checkout/success) -->
+
+> Cart + checkout **backend/API complete & tested** (incl. webhook order creation in a QueryRunner transaction with stock decrement + idempotency). Cart/checkout **UI** lands in Phase 4. Webhook end-to-end needs `STRIPE_WEBHOOK_SECRET` via `stripe listen` (see server README).
 
 ### Orders
 
-- [ ] Buyer order history with status tracking
-- [ ] Individual order detail page (items, seller, total, status timeline)
-- [ ] Email notification to buyer on order confirmation
-- [ ] Email notification to seller on new order
-- [ ] Admin can view and manage all orders
+- [x] Buyer order history with status tracking <!-- API: GET /orders (paginated) -->
+- [x] Individual order detail page (items, seller, total, status timeline) <!-- API: GET /orders/:id (owner only); timeline UI in Phase 4 -->
+- [x] Email notification to buyer on order confirmation <!-- MailService.sendOrderConfirmation on webhook -->
+- [x] Email notification to seller on new order <!-- MailService.sendNewOrderToSeller per store on webhook -->
+- [ ] Admin can view and manage all orders <!-- Phase 5 (AdminModule) -->
+
+> Orders **backend/API complete**; buyer history/detail **UI** in Phase 4. Email delivery targets Mailpit (`localhost:1025`) locally.
 
 ### Reviews & Ratings
 
