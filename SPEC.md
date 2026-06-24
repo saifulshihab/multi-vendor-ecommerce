@@ -142,50 +142,50 @@ Implemented via a custom `@Roles()` decorator + `RolesGuard`. Store-scoped resou
 
 ### Product Catalog (Buyer-facing)
 
-- [ ] Homepage with featured products and categories
-- [ ] Product listing page with filters: category, price range, rating, in-stock only
-- [ ] Search with debounced input (searches title + description)
-- [ ] Sort by: newest, price low-high, price high-low, best rated
-- [ ] Pagination (cursor or offset; documented in query DTO)
-- [ ] Product detail page: images carousel, description, seller info, reviews section
-- [ ] Related products (same category)
+- [x] Homepage with featured products and categories
+- [x] Product listing page with filters: category, price range, rating, in-stock only
+- [x] Search with debounced input (searches title + description)
+- [x] Sort by: newest, price low-high, price high-low, best rated
+- [x] Pagination (cursor or offset; documented in query DTO) <!-- offset paging, QueryProductDto + { data, meta } -->
+- [x] Product detail page: images carousel, description, seller info, reviews section
+- [x] Related products (same category)
 
 ### Shopping Cart & Checkout
 
-- [x] Add to cart (localStorage for guests, DB for logged-in users) <!-- DB cart API done (/cart); guest localStorage merge is Phase 4 frontend -->
-- [ ] Cart drawer/sidebar with item count badge <!-- Phase 4 UI (itemCount returned by /cart) -->
-- [x] Quantity adjustment and item removal <!-- API: PATCH/DELETE /cart/:itemId with stock validation -->
-- [x] Stripe Checkout Session (hosted checkout page) <!-- API: POST /checkout/session; verified live (cs_test_...) -->
-- [ ] Order summary before payment <!-- Phase 4 UI -->
+- [x] Add to cart (localStorage for guests, DB for logged-in users) <!-- guest cart merges into DB on login -->
+- [x] Cart drawer/sidebar with item count badge <!-- CartSheet in header -->
+- [x] Quantity adjustment and item removal <!-- cart drawer + /cart page -->
+- [x] Stripe Checkout Session (hosted checkout page) <!-- verified live (cs_test_...) -->
+- [x] Order summary before payment <!-- /cart order summary card -->
 - [x] Multiple sellers in one cart (Stripe Connect handles split payouts) <!-- separate charges & transfers per seller, minus commission -->
-- [ ] Post-checkout confirmation page with order number <!-- Phase 4 UI (/checkout/success) -->
+- [x] Post-checkout confirmation page with order number <!-- /checkout/success -->
 
 > Cart + checkout **backend/API complete & tested** (incl. webhook order creation in a QueryRunner transaction with stock decrement + idempotency). Cart/checkout **UI** lands in Phase 4. Webhook end-to-end needs `STRIPE_WEBHOOK_SECRET` via `stripe listen` (see server README).
 
 ### Orders
 
-- [x] Buyer order history with status tracking <!-- API: GET /orders (paginated) -->
-- [x] Individual order detail page (items, seller, total, status timeline) <!-- API: GET /orders/:id (owner only); timeline UI in Phase 4 -->
+- [x] Buyer order history with status tracking <!-- /buyer/orders -->
+- [x] Individual order detail page (items, seller, total, status timeline) <!-- /buyer/orders/[id] with status timeline -->
 - [x] Email notification to buyer on order confirmation <!-- MailService.sendOrderConfirmation on webhook -->
 - [x] Email notification to seller on new order <!-- MailService.sendNewOrderToSeller per store on webhook -->
-- [ ] Admin can view and manage all orders <!-- Phase 5 (AdminModule) -->
+- [x] Admin can view and manage all orders <!-- /admin/orders + PATCH /admin/orders/:id/status -->
 
 > Orders **backend/API complete**; buyer history/detail **UI** in Phase 4. Email delivery targets Mailpit (`localhost:1025`) locally.
 
 ### Reviews & Ratings
 
-- [ ] Buyers can leave a 1–5 star rating + text review after order is delivered
-- [ ] One review per product per order
-- [ ] Average rating displayed on product card and detail page
-- [ ] Seller can respond to a review (one reply)
+- [x] Buyers can leave a 1–5 star rating + text review after order is delivered <!-- POST /reviews (delivered-order eligibility enforced); form in ReviewsSection -->
+- [x] One review per product per order <!-- @Unique(userId, productId) + duplicate guard in ReviewsService -->
+- [x] Average rating displayed on product card and detail page <!-- avgRating/reviewCount aggregated in ProductsService; StarRating on card + detail -->
+- [x] Seller can respond to a review (one reply) <!-- PATCH /reviews/:id/reply; inline ReplyForm for store owner on product page -->
 
 ### Admin Panel
 
-- [ ] User management: list, ban/unban, role change
-- [ ] Seller approval (optional: require admin approval before seller goes live)
-- [ ] All products overview with ability to remove/hide
-- [ ] Platform-wide sales report (revenue, GMV, commission earned)
-- [ ] Commission rate configuration (e.g., platform takes 10%)
+- [x] User management: list, ban/unban, role change <!-- /admin/users; GET /admin/users + PATCH /admin/users/:id -->
+- [x] Seller approval (optional: require admin approval before seller goes live) <!-- /admin/stores; PATCH /admin/stores/:id/approve (Store.isApproved) -->
+- [x] All products overview with ability to remove/hide <!-- /admin/products; DELETE /admin/products/:id + PATCH /admin/products/:id/status -->
+- [x] Platform-wide sales report (revenue, GMV, commission earned) <!-- /admin/dashboard; GET /admin/analytics -->
+- [x] Commission rate configuration (e.g., platform takes 10%) <!-- GET/PATCH /admin/settings/commission backed by platform_settings; read by payout flow -->
 
 ---
 

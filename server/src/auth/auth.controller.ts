@@ -125,8 +125,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get the current authenticated user' })
-  me(@CurrentUser() user: AuthUser) {
-    return user;
+  me(@CurrentUser('id') userId: string) {
+    return this.authService.getProfile(userId);
   }
 
   @Get('google')

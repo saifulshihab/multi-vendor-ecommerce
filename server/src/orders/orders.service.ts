@@ -11,6 +11,7 @@ import { OrderStatus, ProductStatus } from '../common/enums';
 import { StripeService } from '../stripe/stripe.service';
 import { MailService } from '../mail/mail.service';
 import { UsersService } from '../users/users.service';
+import { SettingsService } from '../settings/settings.service';
 import { PaginatedResult, paginate } from '../common/dto/pagination-query.dto';
 
 @Injectable()
@@ -26,6 +27,7 @@ export class OrdersService {
     private readonly stripeService: StripeService,
     private readonly mailService: MailService,
     private readonly usersService: UsersService,
+    private readonly settingsService: SettingsService,
   ) {}
 
   /**
@@ -139,7 +141,7 @@ export class OrdersService {
           undefined)
         : undefined;
 
-      const feePercent = this.stripeService.platformFeePercent;
+      const feePercent = await this.settingsService.getCommissionPercent();
       const byStore = new Map<string, number>();
       for (const item of order.items) {
         const cents = Math.round(Number(item.price) * 100) * item.quantity;
@@ -203,7 +205,7 @@ export class OrdersService {
   ): Promise<PaginatedResult<Order>> {
     const [data, total] = await this.ordersRepo.findAndCount({
       where: { buyerId: userId },
-      relations: { items: { product: true } },
+      relations: { items: { product: { store: true } } },
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
@@ -214,7 +216,7 @@ export class OrdersService {
   async findOneForBuyer(userId: string, orderId: string): Promise<Order> {
     const order = await this.ordersRepo.findOne({
       where: { id: orderId, buyerId: userId },
-      relations: { items: { product: true } },
+      relations: { items: { product: { store: true } } },
     });
     if (!order) {
       throw new NotFoundException('Order not found');

@@ -9,6 +9,8 @@ import { Order } from '../orders/entities/order.entity';
 import { OrderItem } from '../orders/entities/order-item.entity';
 import { OrderStatus } from '../common/enums';
 import { StoresService } from '../stores/stores.service';
+import { ProductsService } from '../products/products.service';
+import { QueryProductDto } from '../products/dto/query-product.dto';
 import { DashboardRange } from './dto/seller-queries.dto';
 import { PaginatedResult, paginate } from '../common/dto/pagination-query.dto';
 
@@ -46,11 +48,17 @@ export class SellerService {
     @InjectRepository(OrderItem)
     private readonly orderItemsRepo: Repository<OrderItem>,
     private readonly storesService: StoresService,
+    private readonly productsService: ProductsService,
   ) {}
 
   private async storeId(sellerId: string): Promise<string> {
     const store = await this.storesService.getMine(sellerId);
     return store.id;
+  }
+
+  async getProducts(sellerId: string, query: QueryProductDto) {
+    const storeId = await this.storeId(sellerId);
+    return this.productsService.findForStore(storeId, query);
   }
 
   async getDashboard(

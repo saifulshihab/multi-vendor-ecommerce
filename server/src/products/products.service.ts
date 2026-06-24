@@ -77,13 +77,14 @@ export class ProductsService {
     const qb = this.productsRepo
       .createQueryBuilder('p')
       .leftJoinAndSelect('p.category', 'category')
+      .leftJoinAndSelect('p.store', 'store')
       .leftJoin('p.reviews', 'r')
-      .leftJoin('p.store', 'store')
       .addSelect('COALESCE(AVG(r.rating), 0)', 'avgRating')
       .addSelect('COUNT(DISTINCT r.id)', 'reviewCount')
       .addSelect('COUNT(*) OVER()', 'totalCount')
       .groupBy('p.id')
-      .addGroupBy('category.id');
+      .addGroupBy('category.id')
+      .addGroupBy('store.id');
 
     if (!query.includeInactive) {
       qb.andWhere('p.status = :active', { active: ProductStatus.ACTIVE });

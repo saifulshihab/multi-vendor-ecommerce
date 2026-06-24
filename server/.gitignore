@@ -40,6 +40,8 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 .env.local
+# ...but DO track the template (overrides the root .gitignore's `.env*` rule)
+!.env.example
 
 # temp directory
 .temp

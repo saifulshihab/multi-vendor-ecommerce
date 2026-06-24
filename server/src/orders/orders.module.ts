@@ -8,11 +8,13 @@ import { Store } from '../stores/entities/store.entity';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
 import { UsersModule } from '../users/users.module';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, OrderItem, CartItem, Product, Store]),
     UsersModule,
+    SettingsModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

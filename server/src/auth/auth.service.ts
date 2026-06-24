@@ -52,6 +52,11 @@ export class AuthService {
     };
   }
 
+  async getProfile(userId: string): Promise<PublicUser> {
+    const user = await this.usersService.findByIdOrFail(userId);
+    return this.toPublicUser(user);
+  }
+
   async signup(dto: SignupDto): Promise<AuthResult> {
     const existing = await this.usersService.findByEmail(dto.email);
     if (existing) {

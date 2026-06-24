@@ -1,65 +1,98 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, Store } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ProductCard } from "@/components/product-card";
+import { fetchProducts, fetchCategories } from "@/lib/queries";
+
+export default function HomePage() {
+  const { data: featured, isLoading } = useQuery({
+    queryKey: ["products", { sort: "newest", limit: 8 }],
+    queryFn: () => fetchProducts({ sort: "newest", limit: 8 }),
+  });
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+    staleTime: 5 * 60_000,
+  });
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div>
+      {/* Hero */}
+      <section className="from-amber-50 to-background dark:from-amber-950/20 border-b bg-linear-to-b">
+        <div className="mx-auto max-w-7xl px-4 py-20 text-center">
+          <span className="bg-background inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium">
+            <Store className="size-3.5" /> Independent sellers welcome
+          </span>
+          <h1 className="mt-6 text-4xl font-bold tracking-tight text-balance sm:text-6xl">
+            A marketplace for makers and the people who love their work
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-lg">
+            Shop unique products from independent stores — handmade goods,
+            electronics, books and more, all in one place.
           </p>
+          <div className="mt-8 flex justify-center gap-3">
+            <Button size="lg" render={<Link href="/products" />}>
+              Start shopping <ArrowRight className="size-4" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              render={<Link href="/seller/onboarding" />}
+            >
+              Sell on OpenStall
+            </Button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Categories */}
+      {categories && categories.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-10">
+          <h2 className="mb-4 text-lg font-semibold">Shop by category</h2>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((c) => (
+              <Button
+                key={c.id}
+                variant="outline"
+                size="sm"
+                render={<Link href={`/products?category=${c.slug}`} />}
+              >
+                {c.name}
+              </Button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Featured */}
+      <section className="mx-auto max-w-7xl px-4 pb-16">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">New arrivals</h2>
+          <Button variant="ghost" size="sm" render={<Link href="/products" />}>
+            View all <ArrowRight className="size-4" />
+          </Button>
         </div>
-      </main>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {isLoading
+            ? Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="aspect-3/4 rounded-xl" />
+              ))
+            : featured?.data.map((p) => <ProductCard key={p.id} product={p} />)}
+        </div>
+        {!isLoading && featured?.data.length === 0 && (
+          <p className="text-muted-foreground py-12 text-center">
+            No products yet. Be the first to{" "}
+            <Link href="/seller/onboarding" className="underline">
+              open a store
+            </Link>
+            .
+          </p>
+        )}
+      </section>
     </div>
   );
 }

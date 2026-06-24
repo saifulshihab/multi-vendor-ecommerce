@@ -11,10 +11,14 @@ import { StripeModule } from './stripe/stripe.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { StoresModule } from './stores/stores.module';
 import { ProductsModule } from './products/products.module';
+import { CategoriesModule } from './categories/categories.module';
 import { SellerModule } from './seller/seller.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { CheckoutModule } from './checkout/checkout.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { SettingsModule } from './settings/settings.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -45,10 +49,14 @@ import { CheckoutModule } from './checkout/checkout.module';
     UsersModule,
     StoresModule,
     ProductsModule,
+    CategoriesModule,
     SellerModule,
     CartModule,
     OrdersModule,
     CheckoutModule,
+    ReviewsModule,
+    SettingsModule,
+    AdminModule,
   ],
   controllers: [AppController],
 })
